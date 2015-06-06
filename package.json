@@ -26,7 +26,8 @@
 		"forever": "~0.11.0",
 		"glob": "~4.0.5",
 		"async": "~0.9.0",
-		"chalk": "~0.5"
+		"chalk": "~0.5",
+		"macattack-express": "latest"
 	},
 	"devDependencies": {
 		"supertest": "~0.14.0",

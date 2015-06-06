@@ -14,7 +14,8 @@ var fs = require('fs'),
 	helmet = require('helmet'),
 	passport = require('passport'),
 	config = require('./config'),
-	path = require('path');
+	path = require('path'),
+	macattack_express = require('../../macattack-express');
 
 module.exports = function() {
 	// Initialize express app
@@ -69,8 +70,11 @@ module.exports = function() {
 	app.use(helmet.xssFilter());
 	app.use(helmet.nosniff());
 	app.use(helmet.ienoopen());
-	app.disable('x-powered-by');
 
+	//macattack_express
+	app.use(macattack_express());
+
+	app.disable('x-powered-by');
 
 	// Globbing routing files
 	config.getGlobbedFiles('./app/routes/**/*.js').forEach(function(routePath) {

@@ -72,7 +72,7 @@ module.exports = function() {
 	app.use(helmet.ienoopen());
 
 	//macattack_express
-	app.use(macattack_express());
+	app.use(macattack_express({secret: "my secret"}));
 
 	app.disable('x-powered-by');
 

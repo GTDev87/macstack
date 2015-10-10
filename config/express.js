@@ -15,7 +15,7 @@ var fs = require('fs'),
 	passport = require('passport'),
 	config = require('./config'),
 	path = require('path'),
-	macattack_express = require('../../macattack-express');
+	macattack_express = require('macattack-express');
 
 module.exports = function() {
 	// Initialize express app

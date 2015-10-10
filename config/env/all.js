@@ -6,5 +6,5 @@ module.exports = {
 		description: 'node express endpoint',
 		keywords: 'express node.js'
 	},
-	port: process.env.PORT || 3000
+	port: process.env.PORT || 80
 };

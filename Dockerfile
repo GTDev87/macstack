@@ -1,29 +1,16 @@
-FROM dockerfile/nodejs
+FROM node:0.12
 
-MAINTAINER Matthias Luebken, matthias@catalyst-zero.com
+# use changes to package.json to force Docker not to use the cache
+# when we change our application's nodejs dependencies:
+ADD package.json /tmp/package.json
+RUN cd /tmp && npm install
+RUN mkdir -p /opt/app && cp -a /tmp/node_modules /opt/app/
 
-WORKDIR /home/mean
+# From here we load our application's code in, therefore the previous docker
+# "layer" thats been cached will be used if possible
+WORKDIR /opt/app
+ADD . /opt/app
 
-# Install Mean.JS Prerequisites
-RUN npm install -g grunt-cli
-RUN npm install -g bower
+EXPOSE 80
 
-# Install Mean.JS packages
-ADD package.json /home/mean/package.json
-RUN npm install
-
-# Manually trigger bower. Why doesnt this work via npm install?
-ADD .bowerrc /home/mean/.bowerrc
-ADD bower.json /home/mean/bower.json
-RUN bower install --config.interactive=false --allow-root
-
-# Make everything available for start
-ADD . /home/mean
-
-# currently only works for development
-ENV NODE_ENV development
-
-# Port 3000 for server
-# Port 35729 for livereload
-EXPOSE 3000 35729
-CMD ["grunt"]
+CMD ["node", "server.js"]

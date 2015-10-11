@@ -2,7 +2,7 @@
 
 module.exports = {
 	db: 'mongodb://localhost/macshack-test',
-	port: 80,
+	port: 3000,
 	app: {
 		title: 'macshack - Test Environment'
 	}

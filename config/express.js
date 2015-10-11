@@ -15,6 +15,7 @@ var fs = require('fs'),
 	passport = require('passport'),
 	config = require('./config'),
 	path = require('path'),
+	crypto = require('crypto'),
 	macattack_express = require('macattack-express');
 
 module.exports = function() {
@@ -71,8 +72,27 @@ module.exports = function() {
 	app.use(helmet.nosniff());
 	app.use(helmet.ienoopen());
 
+	console.log("config.client = %j", config.client);
+	console.log("config.host_port = %j", config.host_port);
+	console.log("config.container_volume = %j", config.container_volume);
+	console.log("config.cert_filename = %j", config.cert_filename);
+
+	var certfile = config.container_volume + "/" + config.cert_filename;
+	
+	var md5sum = crypto.createHash('md5');
+	var secretKey = md5sum.digest('hex');
+
+	console.log("certfile = %j", certfile);
+	try{
+	  var cert = fs.readFileSync(certfile, "utf-8");
+	  console.log("cert = %j", cert);
+	}catch (err){
+	  console.log("err.message = %j", err.message);
+	}
+	console.log("secretKey = %j", secretKey);
+
 	//macattack_express
-	app.use(macattack_express({secret: "my secret"}));
+	app.use(macattack_express({secret: secretKey}));
 
 	app.disable('x-powered-by');
 

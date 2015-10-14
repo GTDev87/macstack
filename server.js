@@ -22,16 +22,8 @@ require('./config/passport')();
 // Start the app by listening on <port>
 app.listen(config.port, '0.0.0.0');
 
-//TODO Generate Secret key here
-
-// makes "Root macaroon here."
-
-
 // Expose app
 exports = module.exports = app;
-
-//can just log the host macaroon right here
-console.log("HOST_MACAROON = ");
 
 // Logging initialization
 console.log('MEAN.JS application started on port ' + config.port);

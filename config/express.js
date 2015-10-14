@@ -81,7 +81,7 @@ module.exports = function(callback) {
 
     pem.getPublicKey(cert, function (err, data) {
       var caveatKey = crypto.createHash('md5').digest('hex');
-      var caveatMacaroon = publicKeyMacaroons.addPublicKey3rdPartyCaveat(serializedMacaroon, "For initializing client", caveatKey, "", data.publicKey);
+      var caveatMacaroon = publicKeyMacaroons.addPublicKey3rdPartyCaveat(serializedMacaroon, "For initializing client", caveatKey, "cert = " + cert, data.publicKey);
     
       console.log("client_macaroon=" + JSON.stringify(caveatMacaroon));
 
@@ -104,7 +104,7 @@ module.exports = function(callback) {
       // Create SSL key and certificate
       pem.createCertificate({days:1, selfSigned:true}, function(err, keys){
         var options = {
-          key: keys.serviceKey,
+          key: keys.serviceKey, //do i need to save this off?
           cert: keys.certificate,
          
           // This is necessary only if using the client certificate authentication.
@@ -119,11 +119,8 @@ module.exports = function(callback) {
          
         };
 
-        // Create HTTPS Server
-        var httpsServer = https.createServer(options, app);
-
         // Return Express server instance vial callback
-        callback(httpsServer);
+        callback(https.createServer(options, app));
       });
     });
   }catch (err){

@@ -30,7 +30,7 @@
     "passport-local": "~1.0.0",
     "passport-twitter": "~1.0.2",
     "pem": "^1.8.1",
-    "public-key-macaroons": "0.0.1"
+    "public-key-macaroons": "0.0.2"
   },
   "devDependencies": {
     "supertest": "~0.14.0",

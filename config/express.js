@@ -4,7 +4,6 @@
  * Module dependencies.
  */
 var fs = require('fs'),
-  http = require('http'),
   https = require('https'),
   express = require('express'),
   morgan = require('morgan'),
@@ -21,7 +20,7 @@ var fs = require('fs'),
   pem = require('pem'),
   publicKeyMacaroons = require('public-key-macaroons');
 
-module.exports = function() {
+module.exports = function(callback) {
   // Initialize express app
   var app = express();
 
@@ -85,42 +84,44 @@ module.exports = function() {
       var caveatMacaroon = publicKeyMacaroons.addPublicKey3rdPartyCaveat(serializedMacaroon, "For initializing client", caveatKey, "", data.publicKey);
     
       console.log("client_macaroon=" + JSON.stringify(caveatMacaroon));
+
+
+      //macattack_express
+      app.use(macattack_express({secret: secretKey}));
+
+      //end of macattack security
+
+      app.disable('x-powered-by');
+
+      // Globbing routing files
+      config.getGlobbedFiles('./app/routes/**/*.js').forEach(function(routePath) {
+        require(path.resolve(routePath))(app);
+      });
+
+
+      if (process.env.NODE_ENV === 'secure') {
+        // Log SSL usage
+        console.log('Securely using https protocol');
+
+        // Load SSL key and certificate
+        var privateKey = fs.readFileSync('./config/sslcerts/key.pem', 'utf8');
+        var certificate = fs.readFileSync('./config/sslcerts/cert.pem', 'utf8');
+
+        // Create HTTPS Server
+        var httpsServer = https.createServer({
+          key: privateKey,
+          cert: certificate
+        }, app);
+
+        // Return HTTPS server instance
+        return httpsServer;
+      }
+
+      // Return Express server instance
+      callback(app);
     });
   }catch (err){
     console.log("err.message = %j", err.message);
+    console.log("app could not be started without cert");
   }
-
-  //macattack_express
-  app.use(macattack_express({secret: secretKey}));
-
-  //end of macattack security
-
-  app.disable('x-powered-by');
-
-  // Globbing routing files
-  config.getGlobbedFiles('./app/routes/**/*.js').forEach(function(routePath) {
-    require(path.resolve(routePath))(app);
-  });
-
-
-  if (process.env.NODE_ENV === 'secure') {
-    // Log SSL usage
-    console.log('Securely using https protocol');
-
-    // Load SSL key and certificate
-    var privateKey = fs.readFileSync('./config/sslcerts/key.pem', 'utf8');
-    var certificate = fs.readFileSync('./config/sslcerts/cert.pem', 'utf8');
-
-    // Create HTTPS Server
-    var httpsServer = https.createServer({
-      key: privateKey,
-      cert: certificate
-    }, app);
-
-    // Return HTTPS server instance
-    return httpsServer;
-  }
-
-  // Return Express server instance
-  return app;
 };

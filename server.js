@@ -14,16 +14,17 @@ var init = require('./config/init')(),
  */
 
 // Init the express application
-var app = require('./config/express')();
+require('./config/express')(function (app){
+  // Bootstrap passport config
+  require('./config/passport')();
 
-// Bootstrap passport config
-require('./config/passport')();
+  // Start the app by listening on <port>
+  app.listen(config.port, '0.0.0.0');
 
-// Start the app by listening on <port>
-app.listen(config.port, '0.0.0.0');
+  // Expose app
+  exports = module.exports = app;
 
-// Expose app
-exports = module.exports = app;
+  // Logging initialization
+  console.log('MEAN.JS application started on port ' + config.port);
+});
 
-// Logging initialization
-console.log('MEAN.JS application started on port ' + config.port);

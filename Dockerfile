@@ -11,6 +11,6 @@ RUN mkdir -p /opt/app && cp -a /tmp/node_modules /opt/app/
 WORKDIR /opt/app
 ADD . /opt/app
 
-EXPOSE 80
+EXPOSE 443
 
 CMD ["node", "server.js"]

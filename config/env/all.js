@@ -10,5 +10,5 @@ module.exports = {
   host_port: process.env.HOST_PORT || 3000,
   container_volume: process.env.CONTAINER_VOLUME || "/.tmp",
   cert_filename: process.env.CERT_FILENAME || "cert.pem",
-	port: process.env.PORT || 80
+	port: process.env.PORT || 443
 };

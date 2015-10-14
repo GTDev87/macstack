@@ -98,27 +98,33 @@ module.exports = function(callback) {
         require(path.resolve(routePath))(app);
       });
 
+      // Log SSL usage
+      console.log('Securely using https protocol');
 
-      if (process.env.NODE_ENV === 'secure') {
-        // Log SSL usage
-        console.log('Securely using https protocol');
-
-        // Load SSL key and certificate
-        var privateKey = fs.readFileSync('./config/sslcerts/key.pem', 'utf8');
-        var certificate = fs.readFileSync('./config/sslcerts/cert.pem', 'utf8');
+      // Create SSL key and certificate
+      pem.createCertificate({days:1, selfSigned:true}, function(err, keys){
+        var options = {
+          key: keys.serviceKey,
+          cert: keys.certificate,
+         
+          // This is necessary only if using the client certificate authentication.
+          // Without this some clients don't bother sending certificates at all, some do
+          requestCert: true,
+         
+          // Do we reject anyone who certs who haven't been signed by our recognised certificate authorities
+          rejectUnauthorized: false
+         
+          // This is necessary only if the client uses the self-signed certificate and you care about implicit authorization
+          //ca: [ fs.readFileSync('client/client-certificate.pem') ]//TODO how do i get rid of this
+         
+        };
 
         // Create HTTPS Server
-        var httpsServer = https.createServer({
-          key: privateKey,
-          cert: certificate
-        }, app);
+        var httpsServer = https.createServer(options, app);
 
-        // Return HTTPS server instance
-        return httpsServer;
-      }
-
-      // Return Express server instance
-      callback(app);
+        // Return Express server instance vial callback
+        callback(httpsServer);
+      });
     });
   }catch (err){
     console.log("err.message = %j", err.message);

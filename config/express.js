@@ -81,10 +81,19 @@ module.exports = function(callback) {
 
     pem.getPublicKey(cert, function (err, data) {
       var caveatKey = crypto.createHash('md5').digest('hex');
-      var caveatMacaroon = publicKeyMacaroons.addPublicKey3rdPartyCaveat(serializedMacaroon, "For initializing client", caveatKey, "cert = " + cert, data.publicKey);
+
+      console.log("cert = %j", cert);
+
+      function condenseCertificate(cert){
+        return cert
+          .replace("-----BEGIN CERTIFICATE-----", "")
+          .replace("-----END CERTIFICATE-----", "")
+          .replace(/\n/g, "");
+      }
+
+      var caveatMacaroon = publicKeyMacaroons.addPublicKey3rdPartyCaveat(serializedMacaroon, "For initializing client", caveatKey, "cert = " + condenseCertificate(cert), data.publicKey);
     
       console.log("client_macaroon=" + JSON.stringify(caveatMacaroon));
-
 
       //macattack_express
       app.use(macattack_express({secret: secretKey}));

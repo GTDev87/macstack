@@ -18,8 +18,8 @@
     "glob": "~4.0.5",
     "helmet": "~0.5.0",
     "lodash": "~2.4.1",
-    "macattack": "latest",
-    "macattack-express": "latest",
+    "macattack": "0.0.6",
+    "macattack-express": "0.0.5",
     "method-override": "~2.3.0",
     "morgan": "~1.4.1",
     "passport": "~0.2.0",
@@ -30,7 +30,7 @@
     "passport-local": "~1.0.0",
     "passport-twitter": "~1.0.2",
     "pem": "^1.8.1",
-    "public-key-macaroons": "0.0.4"
+    "public-key-macaroons": "0.0.5"
   },
   "devDependencies": {
     "supertest": "~0.14.0",

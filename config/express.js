@@ -91,7 +91,14 @@ module.exports = function(callback) {
           .replace(/\n/g, "");
       }
 
-      var caveatMacaroon = publicKeyMacaroons.addPublicKey3rdPartyCaveat(serializedMacaroon, "For initializing client", caveatKey, "cert = " + condenseCertificate(cert), data.publicKey);
+      console.log("publicKeyMacaroons = %j", publicKeyMacaroons);
+      console.log("serializedMacaroon = %j", serializedMacaroon);
+      console.log("caveatKey = %j", caveatKey);
+      console.log("condenseCertificate(cert) = %j", condenseCertificate(cert));
+      console.log("data.publicKey = %j", data.publicKey);
+      console.log("publicKeyMacaroons.addPublicKey3rdPartyCaveat = %j", publicKeyMacaroons.addPublicKey3rdPartyCaveat);
+      console.log(publicKeyMacaroons.addPublicKey3rdPartyCaveat);
+      var caveatMacaroon = publicKeyMacaroons.addPublicKey3rdPartyCaveat(serializedMacaroon, "Macattack", caveatKey, "cert = " + condenseCertificate(cert), data.publicKey);
     
       console.log("client_macaroon=" + JSON.stringify(caveatMacaroon));
 

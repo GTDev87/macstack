@@ -1,7 +1,7 @@
 {
   "name": "macshack",
   "description": "node express endpoint",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Gregory Thompson",
   "engines": {
     "node": "0.12.x",

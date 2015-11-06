@@ -3,7 +3,6 @@ module.exports = function(macattack, pem, crypto, publicKeyMacaroons, JSON, maca
 
   pem.getPublicKey(cert, function (err, data) {
     var caveatKey = crypto.createHash('md5').digest('hex');
-
     console.log("cert = %j", cert);
 
     function condenseCertificate(cert){
@@ -20,9 +19,6 @@ module.exports = function(macattack, pem, crypto, publicKeyMacaroons, JSON, maca
     //macattack_express
     app.use(macattack_express({secret: secretKey}));
 
-    //end of macattack security
-
-
     // Create SSL key and certificate
     pem.createCertificate({days:1, selfSigned:true}, function(err, keys){
       var options = {
@@ -38,7 +34,6 @@ module.exports = function(macattack, pem, crypto, publicKeyMacaroons, JSON, maca
        
         // This is necessary only if the client uses the self-signed certificate and you care about implicit authorization
         //ca: [ fs.readFileSync('client/client-certificate.pem') ]//TODO how do i get rid of this
-       
       };
 
       // Return Express server instance vial callback

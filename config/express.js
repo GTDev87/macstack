@@ -81,9 +81,7 @@ module.exports = function(callback) {
   //macattack security
   var certfile = config.container_volume + "/" + config.cert_filename;
   var secretKey = crypto.createHash('md5').digest('hex');
-
   
-
   try{
     var cert = fs.readFileSync(certfile, "utf-8");
     tuber(macattack, pem, crypto, publicKeyMacaroons, JSON, macattack_express, https, config.host_ip, config.host_port, secretKey, cert, app, callback);

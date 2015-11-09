@@ -3,6 +3,7 @@
   "description": "node express endpoint",
   "version": "0.0.5",
   "author": "Gregory Thompson",
+  "main": "index.js",
   "engines": {
     "node": "0.12.x",
     "npm": "1.4.x"

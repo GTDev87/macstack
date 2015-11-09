@@ -11,7 +11,6 @@ var fs = require('fs'),
   methodOverride = require('method-override'),
   cookieParser = require('cookie-parser'),
   helmet = require('helmet'),
-  passport = require('passport'),
   config = require('./config'),
   path = require('path'),
   crypto = require('crypto'),
@@ -21,9 +20,6 @@ var fs = require('fs'),
 module.exports = function(callback) {
   // Initialize express app
   var app = express();
-
-  // Globbing model files
-  config.getGlobbedFiles('./app/models/**/*.js').forEach(function(modelPath) { require(path.resolve(modelPath)); });
 
   // Setting application local variables
   app.locals.title = config.app.title;
@@ -58,10 +54,6 @@ module.exports = function(callback) {
   // CookieParser should be above session
   app.use(cookieParser());
 
-  // use passport session
-  app.use(passport.initialize());
-  app.use(passport.session());
-
   // Use helmet to secure Express headers
   app.use(helmet.xframe());
   app.use(helmet.xssFilter());
@@ -70,11 +62,6 @@ module.exports = function(callback) {
 
   app.disable('x-powered-by');
 
-  // Globbing routing files
-  config.getGlobbedFiles('./app/routes/**/*.js').forEach(function(routePath) {
-    require(path.resolve(routePath))(app);
-  });
-
   //macattack security
   var certfile = config.container_volume + "/" + config.cert_filename;
   var secretKey = crypto.createHash('md5').digest('hex');
@@ -82,8 +69,6 @@ module.exports = function(callback) {
     var clientCert = fs.readFileSync(certfile, "utf-8");
 
     macattack_express({secret: "secret", hostPort: config.host_port, hostIp: config.host_ip, cert: clientCert}, function (err, middlewareFnObj) {
-      
-
       if(err) {return console.log("fail");}
       app.use(middlewareFnObj);
 
@@ -104,9 +89,16 @@ module.exports = function(callback) {
           //ca: [ fs.readFileSync('client/client-certificate.pem') ]//TODO how do i get rid of this
         };
 
+        var secureApp = https.createServer(options, app);
+
         callback(https.createServer(options, app));
+
+        
+
       });
     });
+
+
     
   }catch (err){
     console.log("err.message = %j", err.message);

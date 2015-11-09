@@ -19,7 +19,7 @@
     "helmet": "~0.5.0",
     "lodash": "~2.4.1",
     "macattack": "0.0.6",
-    "macattack-express": "0.0.10",
+    "macattack-express": "0.0.12",
     "method-override": "~2.3.0",
     "morgan": "~1.4.1",
     "passport": "~0.2.0",

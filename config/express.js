@@ -13,13 +13,10 @@ var fs = require('fs'),
   helmet = require('helmet'),
   passport = require('passport'),
   config = require('./config'),
-  tuber = require('./tuber'),
   path = require('path'),
   crypto = require('crypto'),
   macattack_express = require('macattack-express'),
-  macattack = require('macattack'),
-  pem = require('pem'),
-  publicKeyMacaroons = require('public-key-macaroons');
+  pem = require('pem');
 
 module.exports = function(callback) {
   // Initialize express app
@@ -81,10 +78,36 @@ module.exports = function(callback) {
   //macattack security
   var certfile = config.container_volume + "/" + config.cert_filename;
   var secretKey = crypto.createHash('md5').digest('hex');
-  
   try{
-    var cert = fs.readFileSync(certfile, "utf-8");
-    tuber(macattack, pem, crypto, publicKeyMacaroons, JSON, macattack_express, https, config.host_ip, config.host_port, secretKey, cert, app, callback);
+    var clientCert = fs.readFileSync(certfile, "utf-8");
+
+    macattack_express({secret: "secret", hostPort: config.host_port, hostIp: config.host_ip, cert: clientCert}, function (err, middlewareFnObj) {
+      
+
+      if(err) {return console.log("fail");}
+      app.use(middlewareFnObj);
+
+      pem.createCertificate({days:1, selfSigned:true}, function(err, keys){
+        if(err) {return console.log("fail");}
+        var options = {
+          key: keys.serviceKey, //do i need to save this off?
+          cert: keys.certificate,
+         
+          // This is necessary only if using the client certificate authentication.
+          // Without this some clients don't bother sending certificates at all, some do
+          requestCert: true,
+         
+          // Do we reject anyone who certs who haven't been signed by our recognised certificate authorities
+          rejectUnauthorized: false
+         
+          // This is necessary only if the client uses the self-signed certificate and you care about implicit authorization
+          //ca: [ fs.readFileSync('client/client-certificate.pem') ]//TODO how do i get rid of this
+        };
+
+        callback(https.createServer(options, app));
+      });
+    });
+    
   }catch (err){
     console.log("err.message = %j", err.message);
     console.log("app could not be started without cert");

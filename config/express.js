@@ -62,50 +62,45 @@ module.exports = function(callback) {
 
   app.disable('x-powered-by');
 
-  callback(app, function(){
+  return {
+    addRoute: function (route, controller) { return app.route(route).get(controller); },
+    run: function () {
+      //macattack security
+      var certfile = config.container_volume + "/" + config.cert_filename;
+      var secretKey = crypto.createHash('md5').digest('hex');
+      try{
+        var clientCert = fs.readFileSync(certfile, "utf-8");
 
-    //macattack security
-    var certfile = config.container_volume + "/" + config.cert_filename;
-    var secretKey = crypto.createHash('md5').digest('hex');
-    try{
-      var clientCert = fs.readFileSync(certfile, "utf-8");
-
-      macattack_express({secret: "secret", hostPort: config.host_port, hostIp: config.host_ip, cert: clientCert}, function (err, middlewareFnObj) {
-        if(err) {return console.log("fail");}
-        app.use(middlewareFnObj);
-
-        pem.createCertificate({days:1, selfSigned:true}, function(err, keys){
+        macattack_express({secret: "secret", hostPort: config.host_port, hostIp: config.host_ip, cert: clientCert}, function (err, middlewareFnObj) {
           if(err) {return console.log("fail");}
-          var options = {
-            key: keys.serviceKey, //do i need to save this off?
-            cert: keys.certificate,
-           
-            // This is necessary only if using the client certificate authentication.
-            // Without this some clients don't bother sending certificates at all, some do
-            requestCert: true,
-           
-            // Do we reject anyone who certs who haven't been signed by our recognised certificate authorities
-            rejectUnauthorized: false
-           
-            // This is necessary only if the client uses the self-signed certificate and you care about implicit authorization
-            //ca: [ fs.readFileSync('client/client-certificate.pem') ]//TODO how do i get rid of this
-          };
+          app.use(middlewareFnObj);
 
-          var secureApp = https.createServer(options, app);
+          pem.createCertificate({days:1, selfSigned:true}, function(err, keys){
+            if(err) {return console.log("fail");}
+            var options = {
+              key: keys.serviceKey, //do i need to save this off?
+              cert: keys.certificate,
+             
+              // This is necessary only if using the client certificate authentication.
+              // Without this some clients don't bother sending certificates at all, some do
+              requestCert: true,
+             
+              // Do we reject anyone who certs who haven't been signed by our recognised certificate authorities
+              rejectUnauthorized: false
+             
+              // This is necessary only if the client uses the self-signed certificate and you care about implicit authorization
+              //ca: [ fs.readFileSync('client/client-certificate.pem') ]//TODO how do i get rid of this
+            };
 
-          secureApp.listen(config.port, '0.0.0.0');
+            var secureApp = https.createServer(options, app);
 
-          
-
+            secureApp.listen(config.port, '0.0.0.0');
+          });
         });
-      });
-
-
-      
-    }catch (err){
-      console.log("err.message = %j", err.message);
-      console.log("app could not be started without cert");
+      }catch (err){
+        console.log("err.message = %j", err.message);
+        console.log("app could not be started without cert");
+      }
     }
-
-  });
+  };
 };

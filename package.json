@@ -1,7 +1,7 @@
 {
   "name": "macstack",
   "description": "node express endpoint",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "author": "Gregory Thompson",
   "main": "index.js",
   "engines": {

@@ -62,21 +62,30 @@ module.exports = function(callback) {
 
   app.disable('x-powered-by');
 
-  return {
-    addRoute: function (route, controller) { return app.route(route).get(controller); },
-    run: function () {
-      //macattack security
-      var certfile = config.container_volume + "/" + config.cert_filename;
-      var secretKey = crypto.createHash('md5').digest('hex');
-      try{
-        var clientCert = fs.readFileSync(certfile, "utf-8");
+  function getDataFromVolumeFile(filename) {
+    try{
+      return fs.readFileSync(config.container_volume + "/" + filename, "utf-8");
+    }catch(err){
+      return "";
+    }
+  }
 
-        macattack_express({secret: "secret", hostPort: config.host_port, hostIp: config.host_ip, cert: clientCert}, function (err, middlewareFnObj) {
-          if(err) {return console.log("fail");}
+  var clientCert = getDataFromVolumeFile(config.cert_filename);
+  var dataString = getDataFromVolumeFile(config.data_filename);
+
+  var secretKey = crypto.createHash('md5').digest('hex');
+
+  return {
+    addRoute: function (route, controller) { return app.route(route).get(function (req, res) { return controller(req, res, dataString ? JSON.parse(dataString) : undefined)}); },
+    run: function () {  
+      try{
+        //macattack security
+        macattack_express({secret: secretKey, hostPort: config.host_port, hostIp: config.host_ip, cert: clientCert}, function (err, middlewareFnObj) {
+          if(err) {return console.log("fail macattack_express err.message = %j", err.message);}
           app.use(middlewareFnObj);
 
           pem.createCertificate({days:1, selfSigned:true}, function(err, keys){
-            if(err) {return console.log("fail");}
+            if(err) {return console.log("fail pem.createCertificate err.message = %j", err.message);}
             var options = {
               key: keys.serviceKey, //do i need to save this off?
               cert: keys.certificate,
@@ -92,9 +101,7 @@ module.exports = function(callback) {
               //ca: [ fs.readFileSync('client/client-certificate.pem') ]//TODO how do i get rid of this
             };
 
-            var secureApp = https.createServer(options, app);
-
-            secureApp.listen(config.port, '0.0.0.0');
+            https.createServer(options, app).listen(config.port, '0.0.0.0');
           });
         });
       }catch (err){

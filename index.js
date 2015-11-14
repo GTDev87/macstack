@@ -6,4 +6,4 @@
 var init = require('./config/init')(),
   chalk = require('chalk');
 
-module.exports = function () { return require('./config/express')(); };
+module.exports = require('./config/express');

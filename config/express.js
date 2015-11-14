@@ -75,20 +75,22 @@ module.exports = function(callback) {
 
   var secretKey = crypto.createHash('md5').digest('hex');
 
-  return {
-    addRoute: function (route, controller) { return app.route(route).get(function (req, res) { return controller(req, res, dataString ? JSON.parse(dataString) : undefined)}); },
-    run: function () {  
-      try{
-        //macattack security
-        macattack_express({secret: secretKey, hostPort: config.host_port, hostIp: config.host_ip, cert: clientCert}, function (err, middlewareFnObj) {
-          if(err) {return console.log("fail macattack_express err.message = %j", err.message);}
-          app.use(middlewareFnObj);
+  return pem.createCertificate({days:1, selfSigned:true}, function(err, keys){
+    if(err) {return console.log("fail pem.createCertificate err.message = %j", err.message);}
 
-          pem.createCertificate({days:1, selfSigned:true}, function(err, keys){
-            if(err) {return console.log("fail pem.createCertificate err.message = %j", err.message);}
+    return callback({
+      cert: keys.certificate,
+      addRoute: function (route, controller) { return app.route(route).get(function (req, res) { return controller(req, res, dataString ? JSON.parse(dataString) : undefined)}); },
+      run: function () {  
+        try{
+          //macattack security
+          macattack_express({secret: secretKey, hostPort: config.host_port, hostIp: config.host_ip, cert: clientCert}, function (err, middlewareFnObj) {
+            if(err) {return console.log("fail macattack_express err.message = %j", err.message);}
+            app.use(middlewareFnObj);
+
             var options = {
               key: keys.serviceKey, //do i need to save this off?
-              cert: keys.certificate,
+              cert: keys.certificate, //TODO... maybe pass this back to deployer
              
               // This is necessary only if using the client certificate authentication.
               // Without this some clients don't bother sending certificates at all, some do
@@ -103,11 +105,11 @@ module.exports = function(callback) {
 
             https.createServer(options, app).listen(config.port, '0.0.0.0');
           });
-        });
-      }catch (err){
-        console.log("err.message = %j", err.message);
-        console.log("app could not be started without cert");
+        }catch (err){
+          console.log("err.message = %j", err.message);
+          console.log("app could not be started without cert");
+        }
       }
-    }
-  };
+    });
+  });
 };

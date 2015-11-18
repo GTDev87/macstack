@@ -129,7 +129,7 @@ module.exports = function(callback) {
     console.log("cert=" + keys.certificate);
 
     if(!jsonData.prompt){return getCallbackWithData(jsonData.data, keys); }
-    console.log("prompt");
+    console.log("tuber_prompt");
 
     return prompt.get(['data'], function (err, result) {
       console.log('prompt data: ' + result.data);

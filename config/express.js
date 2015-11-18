@@ -81,10 +81,6 @@ module.exports = function(callback) {
   var clientCert = getDataFromVolumeFile(config.cert_filename) || "";
   var dataString = getDataFromVolumeFile(config.data_filename) || "{}";
 
-  console.log("dataString = %j", dataString);
-  console.log(dataString);
-  console.log(JSON.parse(dataString));
-
   var secretKey = crypto.createHash('md5').digest('hex');
 
   //need to tell macstack to wait for data when necessary
@@ -118,7 +114,7 @@ module.exports = function(callback) {
               //ca: [ fs.readFileSync('client/client-certificate.pem') ]//TODO how do i get rid of this
             };
 
-            console.log("end_tuber_protocol");
+            console.log("end_tuber_protocol\r\n");
 
             https.createServer(options, app).listen(config.port, '0.0.0.0');
           });
@@ -132,11 +128,12 @@ module.exports = function(callback) {
 
   return pem.createCertificate({days:1, selfSigned:true}, function(err, keys){
     if(err) {return console.log("fail pem.createCertificate err.message = %j", err.message);}
-    
+
     console.log("cert=" + condenseCertificate(keys.certificate));
+    console.log("\r\n");
 
     if(!jsonData.prompt){return getCallbackWithData(jsonData.data, keys); }
-    console.log("tuber_prompt");
+    console.log("tuber_prompt\r\n");
 
     return prompt.get(['data'], function (err, result) {
       console.log('prompt data: ' + result.data);

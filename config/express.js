@@ -111,6 +111,8 @@ module.exports = function(callback) {
               //ca: [ fs.readFileSync('client/client-certificate.pem') ]//TODO how do i get rid of this
             };
 
+            console.log("end_tuber_protocol");
+
             https.createServer(options, app).listen(config.port, '0.0.0.0');
           });
         }catch (err){

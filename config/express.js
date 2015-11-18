@@ -14,6 +14,7 @@ var fs = require('fs'),
   config = require('./config'),
   path = require('path'),
   crypto = require('crypto'),
+  prompt = require('prompt'),
   macattack_express = require('macattack-express'),
   pem = require('pem');
 
@@ -70,18 +71,25 @@ module.exports = function(callback) {
     }
   }
 
-  var clientCert = getDataFromVolumeFile(config.cert_filename);
-  var dataString = getDataFromVolumeFile(config.data_filename);
+  var clientCert = getDataFromVolumeFile(config.cert_filename) || "";
+  var dataString = getDataFromVolumeFile(config.data_filename) || "{}";
+
+  console.log("dataString = %j", dataString);
+  console.log(dataString);
+  console.log(JSON.parse(dataString));
 
   var secretKey = crypto.createHash('md5').digest('hex');
 
-  return pem.createCertificate({days:1, selfSigned:true}, function(err, keys){
-    if(err) {return console.log("fail pem.createCertificate err.message = %j", err.message);}
+  //need to tell macstack to wait for data when necessary
+  //npm install prompt
 
+  var jsonData = dataString ? JSON.parse(dataString) : undefined;  
+
+  function getCallbackWithData(data, keys){
     return callback({
       cert: keys.certificate,
-      addRoute: function (route, controller) { return app.route(route).get(function (req, res) { return controller(req, res, dataString ? JSON.parse(dataString) : undefined)}); },
-      run: function () {  
+      addRoute: function (route, controller) { return app.route(route).get(function (req, res) { return controller(req, res, data)}); },
+      run: function () {
         try{
           //macattack security
           macattack_express({secret: secretKey, hostPort: config.host_port, hostIp: config.host_ip, cert: clientCert}, function (err, middlewareFnObj) {
@@ -110,6 +118,20 @@ module.exports = function(callback) {
           console.log("app could not be started without cert");
         }
       }
+    }); 
+  }
+
+  return pem.createCertificate({days:1, selfSigned:true}, function(err, keys){
+    if(err) {return console.log("fail pem.createCertificate err.message = %j", err.message);}
+
+    console.log("cert=" + keys.certificate);
+
+    if(!jsonData.prompt){return getCallbackWithData(jsonData.data, keys); }
+    console.log("prompt");
+
+    return prompt.get(['data'], function (err, result) {
+      console.log('prompt data: ' + result.data);
+      return getCallbackWithData(result.data, keys)
     });
   });
 };

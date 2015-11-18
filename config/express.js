@@ -18,6 +18,13 @@ var fs = require('fs'),
   macattack_express = require('macattack-express'),
   pem = require('pem');
 
+function condenseCertificate(certVar){
+  return certVar
+    .replace("-----BEGIN CERTIFICATE-----", "")
+    .replace("-----END CERTIFICATE-----", "")
+    .replace(/\n/g, "");
+}
+
 module.exports = function(callback) {
   // Initialize express app
   var app = express();
@@ -125,8 +132,8 @@ module.exports = function(callback) {
 
   return pem.createCertificate({days:1, selfSigned:true}, function(err, keys){
     if(err) {return console.log("fail pem.createCertificate err.message = %j", err.message);}
-
-    console.log("cert=" + keys.certificate);
+    
+    console.log("cert=" + condenseCertificate(keys.certificate));
 
     if(!jsonData.prompt){return getCallbackWithData(jsonData.data, keys); }
     console.log("tuber_prompt");

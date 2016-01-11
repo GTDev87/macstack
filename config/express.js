@@ -149,7 +149,7 @@ module.exports = function(callback) {
         console.log("json could not be parsed");
       }
 
-      return getCallbackWithData(returnJson.data, keys)
+      return getCallbackWithData(returnJson, keys)
     });
   });
 };

@@ -133,11 +133,21 @@ module.exports = function(callback) {
     console.log("\r\n");
 
     if(!jsonData.prompt){return getCallbackWithData(jsonData.data, keys); }
+    //when is this triggered
     console.log("tuber_prompt\r\n");
 
     return prompt.get(['data'], function (err, result) {
-      console.log('prompt data: ' + result.data);
-      return getCallbackWithData(result.data, keys)
+
+      var returnJson = {};
+      
+      try{
+        returnJson = JSON.parse(result.data.data);
+      }catch (err){
+        console.log("err.message = %j", err.message);
+        console.log("json could not be parsed");
+      }
+
+      return getCallbackWithData(returnJson, keys)
     });
   });
 };

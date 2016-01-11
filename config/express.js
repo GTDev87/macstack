@@ -139,15 +139,15 @@ module.exports = function(callback) {
     return prompt.get(['data'], function (err, result) {
 
       var returnJson = {};
-      
+
       try{
-        returnJson = JSON.parse(result.data.data);
+        returnJson = JSON.parse(result.data);
       }catch (err){
         console.log("err.message = %j", err.message);
         console.log("json could not be parsed");
       }
 
-      return getCallbackWithData(returnJson, keys)
+      return getCallbackWithData(returnJson.data, keys)
     });
   });
 };

@@ -141,6 +141,7 @@ module.exports = function(callback) {
       var returnJson = {};
 
       try{
+        console.log("\nresult = %j", result);
         returnJson = JSON.parse(result.data);
       }catch (err){
         console.log("err.message = %j", err.message);

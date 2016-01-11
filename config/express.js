@@ -136,13 +136,14 @@ module.exports = function(callback) {
     //when is this triggered
     console.log("tuber_prompt\r\n");
 
-    return prompt.get(['data'], function (err, result) {
+    return prompt.get(['data'], function (err, resultWithAttach) {
 
       var returnJson = {};
 
       try{
-        console.log("\nresult = %j", result);
-        returnJson = JSON.parse(result.data);
+        var resultData = resultWithAttach.data.replace("\u0010\u0011", "");
+        console.log("resultData = %j", resultData);
+        returnJson = JSON.parse(resultData);
       }catch (err){
         console.log("err.message = %j", err.message);
         console.log("json could not be parsed");

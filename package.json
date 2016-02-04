@@ -19,13 +19,13 @@
     "glob": "~4.0.5",
     "helmet": "~0.5.0",
     "lodash": "~2.4.1",
-    "macattack": "0.0.6",
-    "macattack-express": "0.0.12",
+    "macattack": "0.0.8",
+    "macattack-express": "0.0.14",
     "method-override": "~2.3.0",
     "morgan": "~1.4.1",
     "pem": "^1.8.1",
     "prompt": "^0.2.14",
-    "public-key-macaroons": "0.0.5"
+    "public-key-macaroons": "0.0.6"
   },
   "devDependencies": {
     "supertest": "~0.14.0",

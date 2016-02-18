@@ -14,6 +14,7 @@ var fs = require('fs'),
   config = require('./config'),
   path = require('path'),
   crypto = require('crypto'),
+  macaroons = require('node-macaroons'),
   prompt = require('prompt'),
   macattack_express = require('macattack-express'),
   pem = require('pem');
@@ -96,6 +97,9 @@ module.exports = function(callback) {
         try{
           //macattack security
           macattack_express({secret: secretKey, hostPort: config.host_port, hostIp: config.host_ip, cert: clientCert}, function (err, middlewareFnObj) {
+            //USDED IN DOCKER FOR NOW
+            console.log("client_macaroon=" + macaroons.serialize(middlewareFnObj.client_macaroon));
+
             if(err) {return console.log("fail macattack_express err.message = %j", err.message);}
             app.use(middlewareFnObj);
 
@@ -129,6 +133,7 @@ module.exports = function(callback) {
   return pem.createCertificate({days:1, selfSigned:true}, function(err, keys){
     if(err) {return console.log("fail pem.createCertificate err.message = %j", err.message);}
 
+    //USDED IN DOCKER FOR NOW
     console.log("cert=" + condenseCertificate(keys.certificate));
     console.log("\r\n");
 
